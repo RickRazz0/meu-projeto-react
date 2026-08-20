@@ -7,67 +7,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap');
 
 /* --- Variáveis de Cor e Design --- */
-/* --- Variáveis de Cor e Design (Padrão: Galáxia) --- */
 :root {
-  --bg-start:        #0f0c29;
-  --bg-mid:          #302b63;
-  --bg-end:          #24243e;
+  --bg-start: #0f0c29;
+  --bg-mid: #302b63;
+  --bg-end: #24243e;
 
-  --accent-purple:   #a855f7;
-  --accent-pink:     #ec4899;
-  --accent-cyan:     #22d3ee;
-  --accent-green:    #4ade80;
+  --accent-purple: #a855f7;
+  --accent-pink: #ec4899;
+  --accent-cyan: #22d3ee;
+  --accent-green: #4ade80;
 
-  --glass-bg:        rgba(255, 255, 255, 0.07);
-  --glass-border:    rgba(255, 255, 255, 0.15);
-  --glass-shadow:    0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 
   --card-back-start: #7c3aed;
-  --card-back-end:   #4f46e5;
-  --card-front-bg:   #1e1b4b;
+  --card-back-end: #4f46e5;
+  --card-front-bg: #1e1b4b;
 
-  --text-primary:    #f1f5f9;
-  --text-secondary:  #94a3b8;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
 
-  --radius-card:     18px;
-  --radius-panel:    20px;
+  --radius-card: 18px;
+  --radius-panel: 20px;
 
   --transition-flip: 0.6s;
-  --font-main:       'Outfit', sans-serif;
-}
-
-/* ============================================================
-   Temas de Cor de Fundo
-   ============================================================ */
-
-/* Tema 1: Roxo Galáxia (Padrão) */
-.mg-wrapper.theme-purple {
-  --bg-start:        #0f0c29;
-  --bg-mid:          #302b63;
-  --bg-end:          #24243e;
-  --card-back-start: #7c3aed;
-  --card-back-end:   #4f46e5;
-  --card-front-bg:   #1e1b4b;
-}
-
-/* Tema 2: Oceano Profundo */
-.mg-wrapper.theme-ocean {
-  --bg-start:        #021526;
-  --bg-mid:          #03346e;
-  --bg-end:          #0e46a3;
-  --card-back-start: #0284c7;
-  --card-back-end:   #0369a1;
-  --card-front-bg:   #0f172a;
-}
-
-/* Tema 3: Pôr do Sol Neon */
-.mg-wrapper.theme-sunset {
-  --bg-start:        #2b0938;
-  --bg-mid:          #5c1d40;
-  --bg-end:          #1f002c;
-  --card-back-start: #f43f5e;
-  --card-back-end:   #be123c;
-  --card-front-bg:   #2a0a22;
+  --font-main: 'Outfit', sans-serif;
 }
 
 /* ============================================================
@@ -84,87 +49,6 @@
   font-family: var(--font-main);
   color: var(--text-primary);
   overflow-x: hidden;
-  transition: background 0.5s ease;
-}
-
-/* ============================================================
-   Seletor de Temas (Cores de Fundo)
-   ============================================================ */
-.mg-theme-selector {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  padding: 8px 16px;
-  border-radius: 50px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: var(--glass-shadow);
-  animation: fadeDown 0.65s ease both;
-}
-
-.mg-theme-label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.mg-theme-options {
-  display: flex;
-  gap: 8px;
-}
-
-.mg-theme-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--text-primary);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  font-family: var(--font-main);
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.mg-theme-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
-}
-
-.mg-theme-btn.active {
-  background: rgba(255, 255, 255, 0.22);
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
-}
-
-.theme-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.theme-dot.purple {
-  background: linear-gradient(135deg, #a855f7, #302b63);
-  box-shadow: 0 0 6px #a855f7;
-}
-
-.theme-dot.ocean {
-  background: linear-gradient(135deg, #38bdf8, #03346e);
-  box-shadow: 0 0 6px #38bdf8;
-}
-
-.theme-dot.sunset {
-  background: linear-gradient(135deg, #fb7185, #5c1d40);
-  box-shadow: 0 0 6px #fb7185;
 }
 
 /* ============================================================
@@ -241,9 +125,17 @@
   line-height: 1;
 }
 
-.mg-stat-value.time   { color: var(--accent-cyan);   }
-.mg-stat-value.moves  { color: var(--accent-purple);  }
-.mg-stat-value.pairs  { color: var(--accent-green);   }
+.mg-stat-value.time {
+  color: var(--accent-cyan);
+}
+
+.mg-stat-value.moves {
+  color: var(--accent-purple);
+}
+
+.mg-stat-value.pairs {
+  color: var(--accent-green);
+}
 
 /* ============================================================
    Grade de Cartas
@@ -461,9 +353,17 @@
   color: var(--text-primary);
 }
 
-.mg-result-chip .chip-value.cyan   { color: var(--accent-cyan);   }
-.mg-result-chip .chip-value.purple { color: var(--accent-purple);  }
-.mg-result-chip .chip-value.green  { color: var(--accent-green);   }
+.mg-result-chip .chip-value.cyan {
+  color: var(--accent-cyan);
+}
+
+.mg-result-chip .chip-value.purple {
+  color: var(--accent-purple);
+}
+
+.mg-result-chip .chip-value.green {
+  color: var(--accent-green);
+}
 
 /* Botão dentro do modal */
 .mg-modal .mg-btn {
@@ -496,42 +396,99 @@
    Keyframes de Animação
    ============================================================ */
 @keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes popIn {
-  from { opacity: 0; transform: scale(0.75); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes matchPulse {
-  0%   { transform: rotateY(180deg) scale(1); }
-  40%  { transform: rotateY(180deg) scale(1.15); }
-  70%  { transform: rotateY(180deg) scale(0.95); }
-  100% { transform: rotateY(180deg) scale(1); }
+  0% {
+    transform: rotateY(180deg) scale(1);
+  }
+
+  40% {
+    transform: rotateY(180deg) scale(1.15);
+  }
+
+  70% {
+    transform: rotateY(180deg) scale(0.95);
+  }
+
+  100% {
+    transform: rotateY(180deg) scale(1);
+  }
 }
 
 @keyframes spin {
-  from { transform: rotate(-15deg) scale(0.5); opacity: 0; }
-  to   { transform: rotate(0deg) scale(1); opacity: 1; }
+  from {
+    transform: rotate(-15deg) scale(0.5);
+    opacity: 0;
+  }
+
+  to {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes float {
-  from { transform: translateY(110vh) scale(0.5); opacity: 0; }
-  10%  { opacity: 0.15; }
-  90%  { opacity: 0.15; }
-  to   { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+  from {
+    transform: translateY(110vh) scale(0.5);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.15;
+  }
+
+  90% {
+    opacity: 0.15;
+  }
+
+  to {
+    transform: translateY(-10vh) scale(1.2);
+    opacity: 0;
+  }
 }
 
 /* ============================================================

@@ -3,32 +3,60 @@
  * ---------------------------------------------------------------
  * Jogo da Memória completo em React.
  * Funcionalidades:
- *  - Tabuleiro 4x4 (8 pares de emojis)
- *  - Flip 3D nas cartas
- *  - Cronômetro em tempo real
- *  - Contador de tentativas
+ *  - Níveis de Dificuldade: Fácil (6 pares), Médio (8 pares), Difícil (12 pares)
+ *  - Seletor de Temas de Cores de Fundo (Galáxia, Oceano, Pôr do Sol)
+ *  - Flip 3D nas cartas com animação CSS suave
+ *  - Cronômetro em tempo real e contador de tentativas
  *  - Delay de 800ms para desvirar pares errados
- *  - Modal de vitória com resultado final
- *  - Embaralhamento aleatório a cada partida
+ *  - Modal de vitória elegante com estatísticas
+ *  - Embaralhamento aleatório (Fisher-Yates) a cada nova partida
  * ---------------------------------------------------------------
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './MemoryGame.css';
 
-// ── Constantes ──────────────────────────────────────────────────
-const EMOJIS = ['🍎', '🍌', '🍕', '🍔', '🍩', '🍦', '🥑', '🍓'];
+// ── Pool de Emojis para o Jogo ──────────────────────────────────
+const ALL_EMOJIS = ['🍎', '🍌', '🍕', '🍔', '🍩', '🍦', '🥑', '🍓', '🍇', '🍒', '🍉', '🍍'];
 
-// Cria e embaralha o baralho: cada emoji aparece 2 vezes
-function createShuffledDeck() {
-  const deck = [...EMOJIS, ...EMOJIS].map((emoji, index) => ({
+// ── Configurações de Dificuldade ───────────────────────────────
+const DIFFICULTY_CONFIGS = {
+  easy: {
+    key: 'easy',
+    name: 'Fácil',
+    emojiCount: 6,      // 12 cartas (6 pares)
+    gridClass: 'grid-12',
+    targetPairs: 6,
+  },
+  medium: {
+    key: 'medium',
+    name: 'Médio',
+    emojiCount: 8,      // 16 cartas (8 pares)
+    gridClass: 'grid-16',
+    targetPairs: 8,
+  },
+  hard: {
+    key: 'hard',
+    name: 'Difícil',
+    emojiCount: 12,     // 24 cartas (12 pares)
+    gridClass: 'grid-24',
+    targetPairs: 12,
+  },
+};
+
+// Cria e embaralha o baralho com base na dificuldade
+function createShuffledDeck(difficultyKey = 'medium') {
+  const count = DIFFICULTY_CONFIGS[difficultyKey].emojiCount;
+  const selectedEmojis = ALL_EMOJIS.slice(0, count);
+
+  const deck = [...selectedEmojis, ...selectedEmojis].map((emoji, index) => ({
     id: index,         // ID único da carta
     emoji,             // Conteúdo visível
     isFlipped: false,  // Virada para cima?
     isMatched: false,  // Par encontrado?
   }));
 
-  // Algoritmo Fisher-Yates para embaralhar
+  // Algoritmo Fisher-Yates para embaralhar de forma justa
   for (let i = deck.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [deck[i], deck[j]] = [deck[j], deck[i]];
@@ -44,13 +72,13 @@ function formatTime(seconds) {
 }
 
 // ── Partículas decorativas de fundo ────────────────────────────
-const PARTICLES = Array.from({ length: 10 }, (_, i) => ({
+const PARTICLES = Array.from({ length: 12 }, (_, i) => ({
   id: i,
   size: 20 + Math.random() * 60,
   left: Math.random() * 100,
   delay: Math.random() * 8,
   duration: 8 + Math.random() * 12,
-  color: ['#a855f7', '#ec4899', '#22d3ee', '#4ade80'][i % 4],
+  color: ['#a855f7', '#ec4899', '#22d3ee', '#4ade80', '#fb7185'][i % 5],
 }));
 
 // ── Componente de Carta Individual ─────────────────────────────
@@ -80,9 +108,10 @@ const Card = React.memo(function Card({ card, onClick, isLocked }) {
 });
 
 // ── Componente Modal de Vitória ─────────────────────────────────
-function WinModal({ time, moves, onRestart }) {
-  // Avaliação simples baseada em tentativas
-  const rating = moves <= 12 ? '🏆 Perfeito!' : moves <= 18 ? '⭐ Excelente!' : '👍 Completou!';
+function WinModal({ time, moves, targetPairs, difficultyName, onRestart }) {
+  // Avaliação baseada no número de tentativas em relação aos pares
+  const isLowMoves = moves <= targetPairs + 4;
+  const rating = isLowMoves ? '🏆 Perfeito!' : moves <= targetPairs + 10 ? '⭐ Excelente!' : '👍 Muito Bem!';
 
   return (
     <div className="mg-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -90,7 +119,7 @@ function WinModal({ time, moves, onRestart }) {
         <span className="mg-modal-emoji">🎉</span>
 
         <h2 className="mg-modal-title" id="modal-title">Você Venceu!</h2>
-        <p className="mg-modal-subtitle">{rating} Todos os pares foram encontrados.</p>
+        <p className="mg-modal-subtitle">{rating} Modo {difficultyName} concluído!</p>
 
         {/* Chips de resultado */}
         <div className="mg-modal-results">
@@ -104,7 +133,7 @@ function WinModal({ time, moves, onRestart }) {
           </div>
           <div className="mg-result-chip">
             <span className="chip-label">Pares</span>
-            <span className="chip-value green">8/8</span>
+            <span className="chip-value green">{targetPairs}/{targetPairs}</span>
           </div>
         </div>
 
@@ -121,8 +150,14 @@ function MemoryGame() {
   // Tema de cor de fundo ('purple' | 'ocean' | 'sunset')
   const [theme, setTheme] = useState('purple');
 
+  // Nível de Dificuldade ('easy' | 'medium' | 'hard')
+  const [difficulty, setDifficulty] = useState('medium');
+
+  // Configuração atual de dificuldade
+  const currentConfig = DIFFICULTY_CONFIGS[difficulty];
+
   // Estado das cartas
-  const [cards, setCards] = useState(createShuffledDeck);
+  const [cards, setCards] = useState(() => createShuffledDeck('medium'));
 
   // IDs das cartas viradas na jogada atual (máx. 2)
   const [selected, setSelected] = useState([]);
@@ -142,7 +177,7 @@ function MemoryGame() {
   // Bloqueio de cliques durante o delay de verificação
   const [isLocked, setIsLocked] = useState(false);
 
-  // Ref para o timeout de desvirar cartas (limpar ao reiniciar)
+  // Ref para o timeout de desvirar cartas
   const flipTimeoutRef = useRef(null);
 
   // ── Cronômetro ───────────────────────────────────────────────
@@ -158,18 +193,17 @@ function MemoryGame() {
 
   // ── Verificação de Pares ─────────────────────────────────────
   useEffect(() => {
-    // Só verifica quando 2 cartas foram selecionadas
     if (selected.length !== 2) return;
 
-    setIsLocked(true); // Bloqueia novos cliques
-    setMoves(prev => prev + 1); // Incrementa tentativas
+    setIsLocked(true);
+    setMoves(prev => prev + 1);
 
     const [firstId, secondId] = selected;
     const firstCard  = cards.find(c => c.id === firstId);
     const secondCard = cards.find(c => c.id === secondId);
 
-    if (firstCard.emoji === secondCard.emoji) {
-      // ✅ Par encontrado! Marca como matched
+    if (firstCard && secondCard && firstCard.emoji === secondCard.emoji) {
+      // ✅ Par encontrado!
       setCards(prev =>
         prev.map(card =>
           card.id === firstId || card.id === secondId
@@ -197,8 +231,7 @@ function MemoryGame() {
 
   // ── Detecção de Vitória ──────────────────────────────────────
   useEffect(() => {
-    const allMatched = cards.every(card => card.isMatched);
-    if (allMatched && moves > 0) {
+    if (cards.length > 0 && cards.every(card => card.isMatched) && moves > 0) {
       setIsRunning(false);
       setIsWon(true);
     }
@@ -206,35 +239,46 @@ function MemoryGame() {
 
   // ── Handler de Clique em Carta ───────────────────────────────
   const handleCardClick = useCallback((id) => {
-    // Inicia o cronômetro na primeira carta
     if (!isRunning) setIsRunning(true);
 
-    // Vira a carta clicada
     setCards(prev =>
       prev.map(card =>
         card.id === id ? { ...card, isFlipped: true } : card
       )
     );
 
-    // Adiciona ao par selecionado
     setSelected(prev => [...prev, id]);
   }, [isRunning]);
 
   // ── Reiniciar Jogo ───────────────────────────────────────────
   const handleRestart = useCallback(() => {
-    // Cancela timeout pendente
     if (flipTimeoutRef.current) clearTimeout(flipTimeoutRef.current);
 
-    setCards(createShuffledDeck());
+    setCards(createShuffledDeck(difficulty));
     setSelected([]);
     setMoves(0);
     setTime(0);
     setIsRunning(false);
     setIsWon(false);
     setIsLocked(false);
-  }, []);
+  }, [difficulty]);
 
-  // ── Pares encontrados (para o painel) ───────────────────────
+  // ── Trocar Dificuldade ───────────────────────────────────────
+  const handleDifficultyChange = useCallback((newDiffKey) => {
+    if (newDiffKey === difficulty) return;
+    if (flipTimeoutRef.current) clearTimeout(flipTimeoutRef.current);
+
+    setDifficulty(newDiffKey);
+    setCards(createShuffledDeck(newDiffKey));
+    setSelected([]);
+    setMoves(0);
+    setTime(0);
+    setIsRunning(false);
+    setIsWon(false);
+    setIsLocked(false);
+  }, [difficulty]);
+
+  // ── Pares encontrados ────────────────────────────────────────
   const matchedCount = cards.filter(c => c.isMatched).length / 2;
 
   // ── Renderização ─────────────────────────────────────────────
@@ -268,35 +312,68 @@ function MemoryGame() {
           <p className="mg-subtitle">Encontre todos os pares de emojis!</p>
         </header>
 
-        {/* Seletor de Tema / Cor de Fundo */}
-        <div className="mg-theme-selector" aria-label="Escolher cor de fundo">
-          <span className="mg-theme-label">🎨 Tema:</span>
-          <div className="mg-theme-options">
-            <button
-              className={`mg-theme-btn ${theme === 'purple' ? 'active' : ''}`}
-              onClick={() => setTheme('purple')}
-              title="Roxo Galáxia"
-            >
-              <span className="theme-dot purple"></span>
-              Galáxia
-            </button>
-            <button
-              className={`mg-theme-btn ${theme === 'ocean' ? 'active' : ''}`}
-              onClick={() => setTheme('ocean')}
-              title="Oceano Profundo"
-            >
-              <span className="theme-dot ocean"></span>
-              Oceano
-            </button>
-            <button
-              className={`mg-theme-btn ${theme === 'sunset' ? 'active' : ''}`}
-              onClick={() => setTheme('sunset')}
-              title="Pôr do Sol Neon"
-            >
-              <span className="theme-dot sunset"></span>
-              Pôr do Sol
-            </button>
+        {/* Controles: Seletor de Tema e Dificuldade */}
+        <div className="mg-controls-bar">
+
+          {/* Tema */}
+          <div className="mg-control-group" aria-label="Escolher cor de fundo">
+            <span className="mg-control-label">🎨 Tema:</span>
+            <div className="mg-control-options">
+              <button
+                className={`mg-control-btn ${theme === 'purple' ? 'active' : ''}`}
+                onClick={() => setTheme('purple')}
+                title="Roxo Galáxia"
+              >
+                <span className="theme-dot purple"></span>
+                Galáxia
+              </button>
+              <button
+                className={`mg-control-btn ${theme === 'ocean' ? 'active' : ''}`}
+                onClick={() => setTheme('ocean')}
+                title="Oceano Profundo"
+              >
+                <span className="theme-dot ocean"></span>
+                Oceano
+              </button>
+              <button
+                className={`mg-control-btn ${theme === 'sunset' ? 'active' : ''}`}
+                onClick={() => setTheme('sunset')}
+                title="Pôr do Sol Neon"
+              >
+                <span className="theme-dot sunset"></span>
+                Pôr do Sol
+              </button>
+            </div>
           </div>
+
+          {/* Dificuldade */}
+          <div className="mg-control-group" aria-label="Escolher nível de dificuldade">
+            <span className="mg-control-label">⚡ Dificuldade:</span>
+            <div className="mg-control-options">
+              <button
+                className={`mg-control-btn ${difficulty === 'easy' ? 'active' : ''}`}
+                onClick={() => handleDifficultyChange('easy')}
+                title="Fácil (6 Pares / 12 Cartas)"
+              >
+                🟢 Fácil
+              </button>
+              <button
+                className={`mg-control-btn ${difficulty === 'medium' ? 'active' : ''}`}
+                onClick={() => handleDifficultyChange('medium')}
+                title="Médio (8 Pares / 16 Cartas)"
+              >
+                🟡 Médio
+              </button>
+              <button
+                className={`mg-control-btn ${difficulty === 'hard' ? 'active' : ''}`}
+                onClick={() => handleDifficultyChange('hard')}
+                title="Difícil (12 Pares / 24 Cartas)"
+              >
+                🔴 Difícil
+              </button>
+            </div>
+          </div>
+
         </div>
 
         {/* Painel de estatísticas */}
@@ -311,14 +388,14 @@ function MemoryGame() {
           </div>
           <div className="mg-stat-card">
             <span className="mg-stat-label">✅ Pares</span>
-            <span className="mg-stat-value pairs">{matchedCount}/8</span>
+            <span className="mg-stat-value pairs">{matchedCount}/{currentConfig.targetPairs}</span>
           </div>
         </div>
 
         {/* Grade de cartas */}
         <section
-          className="mg-board"
-          aria-label="Tabuleiro do Jogo da Memória"
+          className={`mg-board ${currentConfig.gridClass}`}
+          aria-label={`Tabuleiro no modo ${currentConfig.name}`}
         >
           {cards.map(card => (
             <Card
@@ -341,6 +418,8 @@ function MemoryGame() {
         <WinModal
           time={time}
           moves={moves}
+          targetPairs={currentConfig.targetPairs}
+          difficultyName={currentConfig.name}
           onRestart={handleRestart}
         />
       )}
