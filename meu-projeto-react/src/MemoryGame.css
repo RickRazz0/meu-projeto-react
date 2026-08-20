@@ -7,6 +7,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap');
 
 /* --- Variáveis de Cor e Design --- */
+/* --- Variáveis de Cor e Design (Padrão: Galáxia) --- */
 :root {
   --bg-start:        #0f0c29;
   --bg-mid:          #302b63;
@@ -36,6 +37,40 @@
 }
 
 /* ============================================================
+   Temas de Cor de Fundo
+   ============================================================ */
+
+/* Tema 1: Roxo Galáxia (Padrão) */
+.mg-wrapper.theme-purple {
+  --bg-start:        #0f0c29;
+  --bg-mid:          #302b63;
+  --bg-end:          #24243e;
+  --card-back-start: #7c3aed;
+  --card-back-end:   #4f46e5;
+  --card-front-bg:   #1e1b4b;
+}
+
+/* Tema 2: Oceano Profundo */
+.mg-wrapper.theme-ocean {
+  --bg-start:        #021526;
+  --bg-mid:          #03346e;
+  --bg-end:          #0e46a3;
+  --card-back-start: #0284c7;
+  --card-back-end:   #0369a1;
+  --card-front-bg:   #0f172a;
+}
+
+/* Tema 3: Pôr do Sol Neon */
+.mg-wrapper.theme-sunset {
+  --bg-start:        #2b0938;
+  --bg-mid:          #5c1d40;
+  --bg-end:          #1f002c;
+  --card-back-start: #f43f5e;
+  --card-back-end:   #be123c;
+  --card-front-bg:   #2a0a22;
+}
+
+/* ============================================================
    Layout Principal
    ============================================================ */
 .mg-wrapper {
@@ -49,6 +84,87 @@
   font-family: var(--font-main);
   color: var(--text-primary);
   overflow-x: hidden;
+  transition: background 0.5s ease;
+}
+
+/* ============================================================
+   Seletor de Temas (Cores de Fundo)
+   ============================================================ */
+.mg-theme-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  padding: 8px 16px;
+  border-radius: 50px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--glass-shadow);
+  animation: fadeDown 0.65s ease both;
+}
+
+.mg-theme-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.mg-theme-options {
+  display: flex;
+  gap: 8px;
+}
+
+.mg-theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: var(--font-main);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.mg-theme-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.mg-theme-btn.active {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+}
+
+.theme-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.theme-dot.purple {
+  background: linear-gradient(135deg, #a855f7, #302b63);
+  box-shadow: 0 0 6px #a855f7;
+}
+
+.theme-dot.ocean {
+  background: linear-gradient(135deg, #38bdf8, #03346e);
+  box-shadow: 0 0 6px #38bdf8;
+}
+
+.theme-dot.sunset {
+  background: linear-gradient(135deg, #fb7185, #5c1d40);
+  box-shadow: 0 0 6px #fb7185;
 }
 
 /* ============================================================

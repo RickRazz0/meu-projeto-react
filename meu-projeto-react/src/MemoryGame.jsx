@@ -118,6 +118,9 @@ function WinModal({ time, moves, onRestart }) {
 
 // ── Componente Principal: MemoryGame ───────────────────────────
 function MemoryGame() {
+  // Tema de cor de fundo ('purple' | 'ocean' | 'sunset')
+  const [theme, setTheme] = useState('purple');
+
   // Estado das cartas
   const [cards, setCards] = useState(createShuffledDeck);
 
@@ -257,13 +260,44 @@ function MemoryGame() {
       </div>
 
       {/* Container principal */}
-      <main className="mg-wrapper">
+      <main className={`mg-wrapper theme-${theme}`}>
 
         {/* Cabeçalho */}
         <header className="mg-header">
           <h1 className="mg-title">🃏 Jogo da Memória</h1>
           <p className="mg-subtitle">Encontre todos os pares de emojis!</p>
         </header>
+
+        {/* Seletor de Tema / Cor de Fundo */}
+        <div className="mg-theme-selector" aria-label="Escolher cor de fundo">
+          <span className="mg-theme-label">🎨 Tema:</span>
+          <div className="mg-theme-options">
+            <button
+              className={`mg-theme-btn ${theme === 'purple' ? 'active' : ''}`}
+              onClick={() => setTheme('purple')}
+              title="Roxo Galáxia"
+            >
+              <span className="theme-dot purple"></span>
+              Galáxia
+            </button>
+            <button
+              className={`mg-theme-btn ${theme === 'ocean' ? 'active' : ''}`}
+              onClick={() => setTheme('ocean')}
+              title="Oceano Profundo"
+            >
+              <span className="theme-dot ocean"></span>
+              Oceano
+            </button>
+            <button
+              className={`mg-theme-btn ${theme === 'sunset' ? 'active' : ''}`}
+              onClick={() => setTheme('sunset')}
+              title="Pôr do Sol Neon"
+            >
+              <span className="theme-dot sunset"></span>
+              Pôr do Sol
+            </button>
+          </div>
+        </div>
 
         {/* Painel de estatísticas */}
         <div className="mg-stats" role="status" aria-live="polite">
