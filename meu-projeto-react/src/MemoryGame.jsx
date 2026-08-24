@@ -5,6 +5,7 @@
  * Funcionalidades:
  *  - Níveis de Dificuldade: Fácil (6 pares), Médio (8 pares), Difícil (12 pares)
  *  - Seletor de Temas de Cores de Fundo (Galáxia, Oceano, Pôr do Sol)
+ *  - Efeito Visual Match FX: Emojis temporários flutuantes a cada par acertado!
  *  - Flip 3D nas cartas com animação CSS suave
  *  - Cronômetro em tempo real e contador de tentativas
  *  - Delay de 800ms para desvirar pares errados
@@ -109,7 +110,6 @@ const Card = React.memo(function Card({ card, onClick, isLocked }) {
 
 // ── Componente Modal de Vitória ─────────────────────────────────
 function WinModal({ time, moves, targetPairs, difficultyName, onRestart }) {
-  // Avaliação baseada no número de tentativas em relação aos pares
   const isLowMoves = moves <= targetPairs + 4;
   const rating = isLowMoves ? '🏆 Perfeito!' : moves <= targetPairs + 10 ? '⭐ Excelente!' : '👍 Muito Bem!';
 
@@ -162,6 +162,9 @@ function MemoryGame() {
   // IDs das cartas viradas na jogada atual (máx. 2)
   const [selected, setSelected] = useState([]);
 
+  // Emojis temporários flutuantes gerados ao acertar um par (Match FX)
+  const [matchFx, setMatchFx] = useState([]);
+
   // Número de tentativas (pares de cartas virados)
   const [moves, setMoves] = useState(0);
 
@@ -203,7 +206,7 @@ function MemoryGame() {
     const secondCard = cards.find(c => c.id === secondId);
 
     if (firstCard && secondCard && firstCard.emoji === secondCard.emoji) {
-      // ✅ Par encontrado!
+      // ✅ Par encontrado! Marca como matched
       setCards(prev =>
         prev.map(card =>
           card.id === firstId || card.id === secondId
@@ -211,6 +214,26 @@ function MemoryGame() {
             : card
         )
       );
+
+      // 💥 Dispara animação de Emojis Temporários Flutuantes (Match FX)
+      const celebrationEmojis = [firstCard.emoji, '✨', '⭐', '🎉', '💖', '🌟'];
+      const newFxItems = Array.from({ length: 8 }, (_, idx) => ({
+        id: `${Date.now()}-${idx}-${Math.random()}`,
+        emoji: celebrationEmojis[idx % celebrationEmojis.length],
+        left: `${20 + Math.random() * 60}%`,
+        top: `${35 + Math.random() * 30}%`,
+        dx: `${(Math.random() - 0.5) * 160}px`,
+        dy: `${-(40 + Math.random() * 90)}px`,
+        rot: `${(Math.random() - 0.5) * 80}deg`,
+      }));
+
+      setMatchFx(prev => [...prev, ...newFxItems]);
+
+      // Limpa os emojis flutuantes após a animação de 1.2s
+      setTimeout(() => {
+        setMatchFx(prev => prev.filter(item => !newFxItems.includes(item)));
+      }, 1200);
+
       setSelected([]);
       setIsLocked(false);
     } else {
@@ -256,6 +279,7 @@ function MemoryGame() {
 
     setCards(createShuffledDeck(difficulty));
     setSelected([]);
+    setMatchFx([]);
     setMoves(0);
     setTime(0);
     setIsRunning(false);
@@ -271,6 +295,7 @@ function MemoryGame() {
     setDifficulty(newDiffKey);
     setCards(createShuffledDeck(newDiffKey));
     setSelected([]);
+    setMatchFx([]);
     setMoves(0);
     setTime(0);
     setIsRunning(false);
@@ -300,6 +325,25 @@ function MemoryGame() {
               animationDelay:     `${p.delay}s`,
             }}
           />
+        ))}
+      </div>
+
+      {/* 💥 Emojis Temporários de Acerto (Match FX) */}
+      <div className="mg-fx-container" aria-hidden="true">
+        {matchFx.map(fx => (
+          <span
+            key={fx.id}
+            className="mg-floating-emoji"
+            style={{
+              left: fx.left,
+              top: fx.top,
+              '--dx': fx.dx,
+              '--dy': fx.dy,
+              '--rot': fx.rot,
+            }}
+          >
+            {fx.emoji}
+          </span>
         ))}
       </div>
 
